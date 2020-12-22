@@ -5,7 +5,7 @@ import java.lang.NullPointerException
 import java.util.ArrayDeque
 
 class RBTree<T : Comparable<T>> : Cloneable {
-    var root: Node<T>? = null
+    var root: TreeNode<T>? = null
     var size = 0
 
     var onChangeListener: OnNodeChangeListener? = null
@@ -20,7 +20,7 @@ class RBTree<T : Comparable<T>> : Cloneable {
     fun addNode(value: T) {
         onChangeListener?.startChange()
         if (root == null) {
-            root = Node(value)
+            root = TreeNode(value)
             onChangeListener?.onChange()
             size++
             onChangeListener?.endChange()
@@ -34,7 +34,7 @@ class RBTree<T : Comparable<T>> : Cloneable {
             throw RepeatNodeException("树中有相同值的节点")
         }
 
-        val newNode = Node(value, true, parent)
+        val newNode = TreeNode(value, true, parent)
         if (newNode < parent) {
             parent.left = newNode
         } else {
@@ -44,6 +44,7 @@ class RBTree<T : Comparable<T>> : Cloneable {
 
         fixInsert(newNode)
         root?.isRed = false
+        onChangeListener?.onChange()
         size++
         onChangeListener?.endChange()
     }
@@ -54,7 +55,7 @@ class RBTree<T : Comparable<T>> : Cloneable {
      *
      * @param insertNode 插入的节点
      */
-    private fun fixInsert(insertNode: Node<T>) {
+    private fun fixInsert(insertNode: TreeNode<T>) {
         var node = insertNode
         var parent = node.parent
 
@@ -141,8 +142,8 @@ class RBTree<T : Comparable<T>> : Cloneable {
                 uncle.isRed = false
                 parent.parent?.isRed = true
                 onChangeListener?.onChange()
-                node = parent
-                parent = parent.parent
+                node = parent.parent!!
+                parent = node.parent
             }
         }
     }
@@ -152,7 +153,7 @@ class RBTree<T : Comparable<T>> : Cloneable {
      *
      * @param node 要左旋的节点
      */
-    private fun rotateLeft(node: Node<T>) {
+    private fun rotateLeft(node: TreeNode<T>) {
         val parent = node.parent ?: throw NullPointerException("没有父节点")
         val ancestor = parent.parent
 
@@ -184,7 +185,7 @@ class RBTree<T : Comparable<T>> : Cloneable {
      *
      * @param node 要右旋的节点
      */
-    private fun rotateRight(node: Node<T>) {
+    private fun rotateRight(node: TreeNode<T>) {
         val parent = node.parent ?: throw NullPointerException("没有父节点")
         val ancestor = parent.parent
 
@@ -216,7 +217,7 @@ class RBTree<T : Comparable<T>> : Cloneable {
      * @param target 要插入的值
      * @return 该放在哪个节点下
      */
-    private fun findParentNode(target: T): Node<T>? {
+    private fun findParentNode(target: T): TreeNode<T>? {
         var parent = root
         var child = parent
 
@@ -244,7 +245,7 @@ class RBTree<T : Comparable<T>> : Cloneable {
      * @param node 谁的叔叔
      * @return 叔叔节点
      */
-    private fun getUncle(node: Node<T>): Node<T>? {
+    private fun getUncle(node: TreeNode<T>): TreeNode<T>? {
         return if (node.parent == node.parent?.parent?.left) {
             node.parent?.parent?.right
         } else {
@@ -256,30 +257,30 @@ class RBTree<T : Comparable<T>> : Cloneable {
      * 克隆一颗树
      * 节点全是新对象（深克隆）
      */
-    public override fun clone(): RBTree<T> {
-        val clonedTree = RBTree<T>()
-        clonedTree.root = root?.clone() ?: return clonedTree
-        val nodeQueue = ArrayDeque<Node<T>>()
-        nodeQueue.offer(root)
-        while (nodeQueue.isNotEmpty()) {
-            val node = nodeQueue.poll() ?: continue
-            val clonedTreeNode = clonedTree.findParentNode(node.value) ?: continue
-            if (node.left != null) {
-                clonedTreeNode.left = node.left?.clone()
-                nodeQueue.offer(node.left)
-            }
-            if (node.right != null) {
-                clonedTreeNode.right = node.right?.clone()
-                nodeQueue.offer(node.right)
-            }
-        }
-        return clonedTree
-    }
+//    public override fun clone(): RBTree<T> {
+//        val clonedTree = RBTree<T>()
+//        clonedTree.root = root?.clone() ?: return clonedTree
+//        val nodeQueue = ArrayDeque<TreeNode<T>>()
+//        nodeQueue.offer(root)
+//        while (nodeQueue.isNotEmpty()) {
+//            val node = nodeQueue.poll() ?: continue
+//            val clonedTreeNode = clonedTree.findParentNode(node.value) ?: continue
+//            if (node.left != null) {
+//                clonedTreeNode.left = node.left?.clone()
+//                nodeQueue.offer(node.left)
+//            }
+//            if (node.right != null) {
+//                clonedTreeNode.right = node.right?.clone()
+//                nodeQueue.offer(node.right)
+//            }
+//        }
+//        return clonedTree
+//    }
 
     fun print() {
-        val curFloorNode = ArrayDeque<Node<T>>()
+        val curFloorNode = ArrayDeque<TreeNode<T>>()
         curFloorNode.offer(root)
-        val nextFloorNode = ArrayDeque<Node<T>>()
+        val nextFloorNode = ArrayDeque<TreeNode<T>>()
         do {
             var printStr = ""
             while (curFloorNode.isNotEmpty()) {
@@ -310,5 +311,32 @@ class RBTree<T : Comparable<T>> : Cloneable {
         fun startChange()
         fun onChange()
         fun endChange()
+    }
+
+    /**
+     * 节点数据类
+     */
+    data class TreeNode<T : Comparable<T>>(
+        var value: T,
+        var isRed: Boolean = false,
+        override var parent: TreeNode<T>? = null,
+        override var left: TreeNode<T>? = null,
+        override var right: TreeNode<T>? = null
+    ) : Cloneable, ITreeNode<TreeNode<T>> {
+        override fun compareTo(other: TreeNode<T>): Int {
+            return value.compareTo(other.value)
+        }
+
+        override fun hashCode(): Int {
+            return value.hashCode()
+        }
+
+        override fun equals(other: Any?): Boolean {
+            return if (other is TreeNode<*>) value == other.value else false
+        }
+
+        public override fun clone(): TreeNode<T> {
+            return TreeNode(value, isRed)
+        }
     }
 }
