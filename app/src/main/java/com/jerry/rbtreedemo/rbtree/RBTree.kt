@@ -43,8 +43,10 @@ class RBTree<T : Comparable<T>> : Cloneable {
         onChangeListener?.onChange()
 
         fixInsert(newNode)
-        root?.isRed = false
-        onChangeListener?.onChange()
+        if (root!!.isRed) {
+            root!!.isRed = false
+            onChangeListener?.onChange()
+        }
         size++
         onChangeListener?.endChange()
     }
@@ -84,6 +86,7 @@ class RBTree<T : Comparable<T>> : Cloneable {
                         // 把子变黑，把祖变红
                         node.isRed = false
                         node.right?.isRed = true
+                        onChangeListener?.onChange()
                     } else if (node == parent.left) {
                         /**
                          *       祖
@@ -98,6 +101,7 @@ class RBTree<T : Comparable<T>> : Cloneable {
                         // 把父变黑，把祖变红
                         parent.isRed = false
                         parent.right?.isRed = true
+                        onChangeListener?.onChange()
                     }
                 } else if (parent == parent.parent?.right) {
                     if (node == parent.left) {
@@ -120,6 +124,7 @@ class RBTree<T : Comparable<T>> : Cloneable {
                         // 把子变黑，把祖变红
                         node.isRed = false
                         node.left?.isRed = true
+                        onChangeListener?.onChange()
                     } else if (node == parent.right) {
                         /**
                          * 祖
@@ -134,6 +139,7 @@ class RBTree<T : Comparable<T>> : Cloneable {
                         // 把父变黑，把祖变红
                         parent.isRed = false
                         parent.left?.isRed = true
+                        onChangeListener?.onChange()
                     }
                 }
                 parent = null
@@ -196,6 +202,7 @@ class RBTree<T : Comparable<T>> : Cloneable {
         parent.left = node.right
         parent.parent = node
         node.right = parent
+        node.parent = ancestor
 
         // 要右旋节点代替原父节点
         when {
@@ -317,12 +324,12 @@ class RBTree<T : Comparable<T>> : Cloneable {
      * 节点数据类
      */
     data class TreeNode<T : Comparable<T>>(
-        var value: T,
+        override var value: T,
         var isRed: Boolean = false,
         override var parent: TreeNode<T>? = null,
         override var left: TreeNode<T>? = null,
         override var right: TreeNode<T>? = null
-    ) : Cloneable, ITreeNode<TreeNode<T>> {
+    ) : Cloneable, ITreeNode<TreeNode<T>, T> {
         override fun compareTo(other: TreeNode<T>): Int {
             return value.compareTo(other.value)
         }

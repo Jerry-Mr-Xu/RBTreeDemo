@@ -23,7 +23,7 @@
         android:layout_marginRight="10dp"
         android:autofillHints="100"
         android:hint="输入要插入节点的值"
-        android:inputType="number"
+        android:inputType="numberSigned"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btn_add_node"

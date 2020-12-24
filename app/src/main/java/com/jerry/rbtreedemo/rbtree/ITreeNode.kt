@@ -5,7 +5,8 @@ package com.jerry.rbtreedemo.rbtree
  *
  * @author xujierui
  */
-interface ITreeNode<T : ITreeNode<T>> : Comparable<T> {
+interface ITreeNode<T : ITreeNode<T, V>, V : Comparable<V>> : Comparable<T> {
+    val value: V
     val parent: T?
     val left: T?
     val right: T?

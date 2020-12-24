@@ -23,15 +23,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         scope = CoroutineScope(Dispatchers.Main)
-        val rbTreeView = findViewById<RBTreeView>(R.id.rb_tree)
+        val rbTreeView = findViewById<RBTreeView<Int>>(R.id.rb_tree)
         tree.onChangeListener = object : OnNodeChangeListener {
             var delayTime = -1000L
 
             override fun startChange() {
                 isChanging = true
                 delayTime = -1000L
-                val viewTreeRoot = TreeHelper.transformRBTree2ViewTree(tree)
-                rbTreeView.rootNode = viewTreeRoot
             }
 
             override fun onChange() {
@@ -46,15 +44,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun endChange() {
-                val viewTreeRoot = TreeHelper.transformRBTree2ViewTree(tree)
-                scope.launch {
-                    Log.i(TAG, "endChange: before")
-                    delayTime += 1000L
-                    delay(delayTime)
-                    Log.i(TAG, "endChange: after")
-                    rbTreeView.rootNode = viewTreeRoot
-                    isChanging = false
-                }
+                isChanging = false
             }
         }
 

@@ -27,45 +27,23 @@ class TreeHelper {
         }
 
         /**
-         * 通过根节点查找和指定节点相同值的节点
-         *
-         * @param rootNode 根节点
-         * @param targetNode 指定节点
-         */
-        fun findTreeNodeFromRoot(rootNode: ITreeNode<*>?, targetNode: ITreeNode<*>): ITreeNode<*>? {
-            rootNode ?: return null
-            if (rootNode == targetNode) {
-                return rootNode
-            }
-            val leftResult = findTreeNodeFromRoot(rootNode.left, targetNode)
-            if (leftResult != null) {
-                return leftResult
-            }
-            return findTreeNodeFromRoot(rootNode.right, targetNode)
-        }
-
-        /**
          * 将树平铺
          */
-        fun <T: ITreeNode<*>> flatTree(rootNode: T?): Set<T> {
-            val nodeSet = HashSet<T>()
-            flatTreeToSet(nodeSet, rootNode)
-            return nodeSet
+        fun <T : ITreeNode<T, V>, V: Comparable<V>> flatTree(rootNode: T?): HashMap<V, T> {
+            val nodeMap = HashMap<V, T>()
+            flatTreeToMap(nodeMap, rootNode)
+            return nodeMap
         }
 
         /**
          * 将树平铺为集合
          */
         @Suppress("UNCHECKED_CAST")
-        private fun<T: ITreeNode<*>> flatTreeToSet(nodeSet: HashSet<T>, rootNode: T?) {
+        private fun <T : ITreeNode<T, V>, V: Comparable<V>> flatTreeToMap(nodeMap: HashMap<V, T>, rootNode: T?) {
             rootNode ?: return
-            nodeSet.add(rootNode)
-            if (rootNode.left != null) {
-                flatTreeToSet(nodeSet, rootNode.left as T)
-            }
-            if (rootNode.right != null) {
-                flatTreeToSet(nodeSet, rootNode.right as T)
-            }
+            nodeMap[rootNode.value] = rootNode
+            flatTreeToMap(nodeMap, rootNode.left)
+            flatTreeToMap(nodeMap, rootNode.right)
         }
     }
 }
