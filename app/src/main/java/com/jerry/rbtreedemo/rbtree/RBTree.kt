@@ -54,6 +54,37 @@ class RBTree<T : Comparable<T>> : Cloneable {
     }
 
     /**
+     * 移除节点
+     *
+     * @param node 要移除的节点
+     */
+    fun removeNode(node: TreeNode<T>) {
+        removeNode(node.value)
+    }
+
+    /**
+     * 移除节点
+     *
+     * @param value 要移除节点的值
+     */
+    fun removeNode(value: T) {
+        onChangeListener?.startChange()
+        if (root == null) {
+            // 如果没有根节点，结束
+            onChangeListener?.endChange()
+            return
+        }
+
+        val parent = findParentNode(value)
+        if (parent == null || parent.value != value) {
+            // 如果没有找到对应的节点，结束
+            onChangeListener?.endChange()
+            return
+        }
+        val node = parent
+    }
+
+    /**
      * 插入修复
      * 通过旋转变色等方式修复为满足红黑树规则
      *
