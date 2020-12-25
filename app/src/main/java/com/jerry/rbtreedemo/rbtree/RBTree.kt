@@ -4,6 +4,8 @@ import java.lang.Exception
 import java.lang.NullPointerException
 import java.util.ArrayDeque
 
+private const val TAG = "RBTree"
+
 class RBTree<T : Comparable<T>> : Cloneable {
     var root: TreeNode<T>? = null
     var size = 0
@@ -168,6 +170,7 @@ class RBTree<T : Comparable<T>> : Cloneable {
 
         // 父节点变为要左旋节点的左子节点
         parent.right = node.left
+        node.left?.parent = parent
         parent.parent = node
         node.left = parent
         node.parent = ancestor
@@ -200,6 +203,7 @@ class RBTree<T : Comparable<T>> : Cloneable {
 
         // 父节点变为要右旋节点的右子节点
         parent.left = node.right
+        node.right?.parent = parent
         parent.parent = node
         node.right = parent
         node.parent = ancestor
@@ -306,13 +310,9 @@ class RBTree<T : Comparable<T>> : Cloneable {
         } while (curFloorNode.isNotEmpty())
     }
 
-    class RepeatNodeException(message: String?) : Exception(message) {
+    class RepeatNodeException(message: String?) : Exception(message)
 
-    }
-
-    class RotateNodeException(message: String?) : Exception(message) {
-
-    }
+    class RotateNodeException(message: String?) : Exception(message)
 
     interface OnNodeChangeListener {
         fun startChange()
@@ -344,6 +344,10 @@ class RBTree<T : Comparable<T>> : Cloneable {
 
         public override fun clone(): TreeNode<T> {
             return TreeNode(value, isRed)
+        }
+
+        override fun toString(): String {
+            return "{value = $value, isRed = $isRed}"
         }
     }
 }
